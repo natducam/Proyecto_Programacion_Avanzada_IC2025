@@ -1,19 +1,12 @@
 from tkinter import Tk
-from tkinter import ttk  
+from tkinter import ttk 
+import display_monitoring
  
 def boton_presionado():
     print("¡Botón presionado!")
 
 def display_scan():
-    window_scan = Tk()
-
-    frm = ttk.Frame(window_scan,padding=10)
-    frm.grid()
-
-    go_back = ttk.Button(frm, text="Regresar", command=lambda:[window_scan.destroy(),main()])
-    go_back.grid(column=0, row=1) 
-
-    window_scan.mainloop()
+    exec(open("1.py").read())
 
 def display_services():
     window_services = Tk()
@@ -47,17 +40,6 @@ def display_prevention():
     go_back.grid(column=0, row=1) 
 
     window_prevention.mainloop()
-
-def display_pentesting():
-    window_pentesting = Tk()
-
-    frm = ttk.Frame(window_pentesting,padding=10)
-    frm.grid()
-
-    go_back = ttk.Button(frm, text="Regresar", command=lambda:[window_pentesting.destroy(),main()])
-    go_back.grid(column=0, row=1) 
-
-    window_pentesting.mainloop()
 
 def display_alerts():
     window_alerts = Tk()
@@ -114,7 +96,7 @@ def main():
     button4 = ttk.Button(frm, text="4. Mecanismos de Prevencion de Ataque", command=lambda:[root.destroy(),display_prevention()])
     button4.grid(column=0, row=4)  
     
-    button5 = ttk.Button(frm, text="5. Pruebas de Penetracion/Pen Testing", command=lambda:[root.destroy(),display_pentesting()])
+    button5 = ttk.Button(frm, text="5. Monitoreo", command=lambda:[root.destroy(),display_monitoring.run()])
     button5.grid(column=0, row=5)  
 
     button6 = ttk.Button(frm, text="6. Alertas y Notificaciones", command=lambda:[root.destroy(),display_alerts()])
@@ -130,5 +112,4 @@ def main():
 
 
 main()
- 
  
