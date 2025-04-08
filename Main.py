@@ -77,7 +77,6 @@ def display_report():
 def main():
     root = Tk()
     root.title("Sistema de Seguridad")
-    #root.geometry("250x250")
     
     frm = ttk.Frame(root, padding=10)
     frm.grid()
@@ -96,7 +95,7 @@ def main():
     button4 = ttk.Button(frm, text="4. Mecanismos de Prevencion de Ataque", command=lambda:[root.destroy(),display_prevention()])
     button4.grid(column=0, row=4)  
     
-    button5 = ttk.Button(frm, text="5. Monitoreo", command=lambda:[root.destroy(),display_monitoring.run()])
+    button5 = ttk.Button(frm, text="5. Monitoreo", command=lambda: display_monitoring.run(root))
     button5.grid(column=0, row=5)  
 
     button6 = ttk.Button(frm, text="6. Alertas y Notificaciones", command=lambda:[root.destroy(),display_alerts()])
