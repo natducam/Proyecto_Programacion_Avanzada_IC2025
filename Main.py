@@ -1,12 +1,10 @@
 from tkinter import Tk
 from tkinter import ttk 
 import display_monitoring
- 
+import display_scan
+
 def boton_presionado():
     print("¡Botón presionado!")
-
-def display_scan():
-    exec(open("1.py").read())
 
 def display_services():
     window_services = Tk()
@@ -75,6 +73,7 @@ def display_report():
     window_report.mainloop()
 
 def main():
+    
     root = Tk()
     root.title("Sistema de Seguridad")
     
@@ -83,7 +82,7 @@ def main():
     
     ttk.Label(frm, text="Opciones").grid(column=0, row=0) 
     
-    button1 = ttk.Button(frm, text="1. Escaneo de Puertos y Servicios", command=lambda:[root.destroy(),display_scan()])
+    button1 = ttk.Button(frm, text="1. Escaneo de Puertos y Servicios", command=lambda: display_scan.run(root))
     button1.grid(column=0, row=1) 
 
     button2 = ttk.Button(frm, text="2. Detecion de Servicios en la Red", command=lambda:[root.destroy(),display_services()])
@@ -109,6 +108,4 @@ def main():
 
     root.mainloop()
 
-
 main()
- 

@@ -1,67 +1,106 @@
 import tkinter as tk
-from tkinter import scrolledtext, messagebox
-import nmap
- 
-def scan_target():
-    target = entry_target.get()
-    ports = entry_ports.get()
- 
-    if not target:
-        messagebox.showerror("Error", "Por favor, introduce una IP o dominio.")
-        return
- 
-    scanner = nmap.PortScanner()
-    output_text.config(state=tk.NORMAL)
-    output_text.delete(1.0, tk.END)
-   
-    output_text.insert(tk.END, f" Escaneando {target} en puertos {ports}...\n\n")
-   
-    try:
-        scanner.scan(target, ports, arguments="-sS -Pn -T4 -A")
-       
-        for host in scanner.all_hosts():
-            output_text.insert(tk.END, f" Host: {host} ({scanner[host].hostname()})\n")
-            output_text.insert(tk.END, f" Estado: {scanner[host].state()}\n\n")
- 
-            for proto in scanner[host].all_protocols():
-                output_text.insert(tk.END, f" Protocolo: {proto.upper()}\n")
-                ports = scanner[host][proto].keys()
-               
-                for port in sorted(ports):
-                    state = scanner[host][proto][port]['state']
-                    service = scanner[host][proto][port]['name']
-                    output_text.insert(tk.END, f"   - Puerto {port}: {state} ({service})\n")
-           
-            output_text.insert(tk.END, "\n" + "="*40 + "\n")
-       
-    except Exception as e:
-        output_text.insert(tk.END, f" Error: {str(e)}\n")
-   
-    output_text.config(state=tk.DISABLED)
- 
- 
+from tkinter import ttk
+import threading
+from scapy.all import sniff, IP, TCP
+
+# Variable global para el estado de monitoreo
+monitoring = False
+
+# Variable para contar los intentos de SYN en diferentes puertos
+syn_attempts = {}
+
+# Función que simula el monitoreo de tráfico de red
+def monitor_network(log_text):
+    def packet_callback(packet):
+        if packet.haslayer(IP) and packet.haslayer(TCP):
+            ip_src = packet[IP].src
+            ip_dst = packet[IP].dst
+            sport = packet[TCP].sport
+            dport = packet[TCP].dport
+            flags = packet[TCP].flags
+
+            # Detectar escaneo SYN (muchos intentos a diferentes puertos sin completar la conexión)
+            if flags == "S":  # Paquete SYN
+                if ip_src not in syn_attempts:
+                    syn_attempts[ip_src] = set()
+                syn_attempts[ip_src].add(dport)
+                
+                # Si detectamos demasiados puertos diferentes en un corto período, es un escaneo SYN
+                if len(syn_attempts[ip_src]) > 5:  # Puedes ajustar el límite de puertos escaneados
+                    log_text.insert(tk.END, f"Mensaje SYN sospechoso detectado desde {ip_src} hacia {ip_dst} en puerto {dport}.\n")
+                    log_text.yview(tk.END)
+
+            # Detectar intentos de acceso no autorizado (puerto 22 para SSH)
+            if dport == 22:  # Intentos a puerto SSH
+                log_text.insert(tk.END, f"Intento de acceso a SSH detectado desde {ip_src} hacia {ip_dst} en puerto 22.\n")
+                log_text.yview(tk.END)
+
+            # Detectar comunicaciones maliciosas a puertos no comunes
+            # Por ejemplo, alertar sobre tráfico a puertos fuera del rango usual
+            if dport > 1024 and dport < 49152:  # Puertos registrados
+                log_text.insert(tk.END, f"Tráfico sospechoso detectado desde {ip_src} hacia {ip_dst} en puerto {dport}.\n")
+                log_text.yview(tk.END)
+
+    # Captura los paquetes de red
+    sniff(prn=packet_callback, store=0, count=0)  # count=0 significa que captura indefinidamente hasta que se detenga
+
+# Función para iniciar el monitoreo en un hilo separado
+def start_monitoring(log_text):
+    global monitoring
+    monitoring = True
+    monitor_thread = threading.Thread(target=monitor_network, args=(log_text,))
+    monitor_thread.daemon = True  # El hilo se cierra cuando se cierra la ventana
+    monitor_thread.start()
+
+# Función para detener el monitoreo
+def stop_monitoring():
+    global monitoring
+    monitoring = False
+
+# Función para crear la ventana de monitoreo
+def run(root):
+    global monitoring
+    monitoring = False  # Inicia con monitoreo detenido
+
+    # Crear ventana para monitoreo
+    monitoring_window = tk.Toplevel(root)
+    monitoring_window.title("Monitoreo de Tráfico de Red")
+    
+    # Crear frame
+    frame = ttk.Frame(monitoring_window, padding=10)
+    frame.grid()
+
+    # Crear widget Text para mostrar el log
+    log_text = tk.Text(frame, height=20, width=80)
+    log_text.grid(row=0, column=0, padx=10, pady=10)
+
+    # Función para iniciar el monitoreo
+    def start_button_pressed():
+        start_monitoring(log_text)
+        start_button.config(state=tk.DISABLED)
+        stop_button.config(state=tk.NORMAL)
+
+    # Función para detener el monitoreo
+    def stop_button_pressed():
+        stop_monitoring()
+        start_button.config(state=tk.NORMAL)
+        stop_button.config(state=tk.DISABLED)
+
+    # Función para regresar al menú principal
+    def back_button_pressed():
+        monitoring_window.destroy()
+
+    start_button = ttk.Button(frame, text="Iniciar Monitoreo", command=start_button_pressed)
+    start_button.grid(row=1, column=0, padx=10, pady=10)
+
+    stop_button = ttk.Button(frame, text="Detener Monitoreo", command=stop_button_pressed, state=tk.DISABLED)
+    stop_button.grid(row=2, column=0, padx=10, pady=10)
+
+    back_button = ttk.Button(frame, text="Regresar al menú principal", command=back_button_pressed)
+    back_button.grid(row=3, column=0, padx=10, pady=10)
+
+    monitoring_window.mainloop()
+
 root = tk.Tk()
-root.title("Escáner de Puertos")
-root.geometry("600x400")
- 
- 
-tk.Label(root, text=" IP o Dominio:").pack(pady=5)
-entry_target = tk.Entry(root, width=40)
-entry_target.pack()
- 
- 
-tk.Label(root, text=" Puertos (ej: 1-1000 o 22,80,443):").pack(pady=5)
-entry_ports = tk.Entry(root, width=40)
-entry_ports.pack()
-entry_ports.insert(0, "1-1024")  
- 
- 
-btn_scan = tk.Button(root, text="Iniciar Escaneo", command=scan_target, bg="green", fg="white")
-btn_scan.pack(pady=10)
- 
- 
-output_text = scrolledtext.ScrolledText(root, width=70, height=15, state=tk.DISABLED)
-output_text.pack()
- 
- 
-root.mainloop()
+root.withdraw()
+run(root)
