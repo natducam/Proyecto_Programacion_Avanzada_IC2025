@@ -58,7 +58,7 @@ def stop_monitoring():
     monitoring = False
 
 # Función para crear la ventana de monitoreo
-def run(root):
+def open_window(root):
     global monitoring
     monitoring = False  # Inicia con monitoreo detenido
 
@@ -101,6 +101,14 @@ def run(root):
 
     monitoring_window.mainloop()
 
-root = tk.Tk()
-root.withdraw()
-run(root)
+
+def run(parent_root=None):
+    if parent_root is None:
+        root = tk.Tk()
+        root.withdraw()
+        open_window(root)
+    else:
+        open_window(parent_root)
+
+if __name__ == "__main__":
+    run()

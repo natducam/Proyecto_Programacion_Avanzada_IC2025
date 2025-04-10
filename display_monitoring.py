@@ -184,12 +184,12 @@ class ThreatDetectorApp:
 
 def run(parent_root=None):
     if parent_root is None:
-        parent_root = tk.Tk()
-
-    window = tk.Toplevel(parent_root) if isinstance(parent_root, tk.Tk) else parent_root
-    app = ThreatDetectorApp(window)
-    if isinstance(parent_root, tk.Tk):
-        parent_root.mainloop()
+        root = tk.Tk()
+        app = ThreatDetectorApp(root)
+        root.mainloop()
+    else:
+        window = tk.Toplevel(parent_root)
+        app = ThreatDetectorApp(window)
 
 if __name__ == "__main__":
     run()

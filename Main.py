@@ -1,5 +1,6 @@
 from tkinter import Tk
-from tkinter import ttk 
+from tkinter import ttk
+import display_alerts
 import display_monitoring
 import display_scan
 
@@ -38,17 +39,6 @@ def display_prevention():
     go_back.grid(column=0, row=1) 
 
     window_prevention.mainloop()
-
-def display_alerts():
-    window_alerts = Tk()
-
-    frm = ttk.Frame(window_alerts,padding=10)
-    frm.grid()
-
-    go_back = ttk.Button(frm, text="Regresar", command=lambda:[window_alerts.destroy(),main()])
-    go_back.grid(column=0, row=1) 
-
-    window_alerts.mainloop()
 
 def display_incidents():
     window_incidents = Tk()
@@ -94,10 +84,10 @@ def main():
     button4 = ttk.Button(frm, text="4. Mecanismos de Prevencion de Ataque", command=lambda:[root.destroy(),display_prevention()])
     button4.grid(column=0, row=4)  
     
-    button5 = ttk.Button(frm, text="5. Monitoreo", command=lambda: display_monitoring.run(root))
+    button5 = ttk.Button(frm, text="5. Monitoreo", command=lambda:display_monitoring.run(root))
     button5.grid(column=0, row=5)  
 
-    button6 = ttk.Button(frm, text="6. Alertas y Notificaciones", command=lambda:[root.destroy(),display_alerts()])
+    button6 = ttk.Button(frm, text="6. Alertas y Notificaciones", command=lambda:display_alerts.run(root))
     button6.grid(column=0, row=6) 
 
     button7 = ttk.Button(frm, text="7. Registro de Incidentes", command=lambda:[root.destroy(),display_incidents()])
