@@ -4,6 +4,7 @@ import subprocess
 import platform
 import psutil
 import os
+from packaging import version 
 
 def check_vulnerabilities():
     vulnerabilities = []
@@ -22,33 +23,41 @@ def check_vulnerabilities():
     weak_auth = check_weak_authentication()
     if weak_auth:
         vulnerabilities.append(f"Fallos en autenticación: {weak_auth}")
+    else:
+        vulnerabilities.append("No se encontraron fallos en autenticación.")
     
     return vulnerabilities
 
 def check_outdated_software():
     outdated = []
-    python_version = platform.python_version()
-    if python_version < '3.8':
-        outdated.append(f"Python {python_version} (se recomienda actualizar a 3.8 o superior)")
     
-    try:
-        result = subprocess.run(['openssl', 'version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        openssl_version = result.stdout.strip().split()[-1]
-        if openssl_version < '1.1':
-            outdated.append(f"OpenSSL {openssl_version} (se recomienda actualizar a 1.1 o superior)")
-    except FileNotFoundError:
-        outdated.append("OpenSSL no encontrado")
+    # Verificación de versión de Python
+    python_version = platform.python_version()
+    if version.parse(python_version) < version.parse('3.8'):
+        outdated.append(f"Python {python_version} -> Se recomienda actualizar a 3.10 o superior.")
+    else:
+        outdated.insert(0, "++ No hay versiones obsoletas.")
+        outdated.append(f"Python {python_version} está dentro del soporte.")
+
+    # Verificación de versión de Windows
+    if platform.system() == 'Windows':
+        windows_version = platform.system() + " " + platform.release()
+        release = platform.release()
+        supported_versions = ['10', '11']
+        if release not in supported_versions:
+            outdated.append(f"{windows_version} -> Se recomienda actualizar a Windows 10 o superior.")
+        else:
+            outdated.append(f"{windows_version} está dentro del soporte.")
     
     return outdated
 
 def check_insecure_configurations():
     insecure = []
-    if os.access('/etc/passwd', os.W_OK):
-        insecure.append("/etc/passwd tiene permisos de escritura para todos")
     
+    # Verificación de puertos abiertos
     open_ports = check_open_ports()
     if open_ports:
-        insecure.append(f"Puertos abiertos sin necesidad: {open_ports}")
+        insecure.append(f"Puertos abiertos y sin monitorear: {open_ports}")
     
     return insecure
 
@@ -62,16 +71,24 @@ def check_open_ports():
 def check_weak_authentication():
     weak = []
     try:
-        with open('/etc/passwd', 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                if ':' not in line:
+        result = subprocess.run(["net", "user"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+        if result.returncode == 0:
+            output = result.stdout
+            users = []
+            capture = False
+            for line in output.splitlines():
+                if "-------" in line:
+                    capture = not capture
                     continue
-                username = line.split(':')[0]
-                if username in ['root', 'admin']:
-                    weak.append(f"Cuenta potencialmente débil: {username}")
-    except FileNotFoundError:
-        weak.append("No se puede acceder a /etc/passwd para verificar cuentas.")
+                if capture:
+                    users.extend(line.split())
+            for user in users:
+                if user.lower() in ['admin', 'administrator', 'test']:
+                    weak.append(f"Cuenta potencialmente débil: {user}")
+        else:
+            weak.append("No se pudo obtener la lista de usuarios.")
+    except Exception:
+        weak.append("Error al verificar usuarios.")
     
     return weak
 
@@ -80,8 +97,6 @@ def show_vulnerabilities():
     
     if vulnerabilities:
         messagebox.showwarning("Vulnerabilidades encontradas", "\n".join(vulnerabilities))
-    else:
-        messagebox.showinfo("No se encontraron vulnerabilidades", "El sistema está libre de vulnerabilidades conocidas.")
 
 def open_window(parent_root):
     # Ventana principal del módulo de vulnerabilidades
@@ -95,6 +110,14 @@ def open_window(parent_root):
     # Botón para ejecutar el chequeo de vulnerabilidades
     check_button = ttk.Button(window, text="Verificar Vulnerabilidades", command=show_vulnerabilities)
     check_button.pack(pady=20)
+
+    # Botón para regresar al menú
+    back_button = ttk.Button(window, text="Regresar al menú", command=lambda: close_window_and_back(parent_root, window))
+    back_button.pack(pady=10)
+
+def close_window_and_back(parent_root, window):
+    window.destroy()
+    parent_root.deiconify()  # Mostrar la ventana principal nuevamente
 
 def run(parent_root=None):
     if parent_root is None:
