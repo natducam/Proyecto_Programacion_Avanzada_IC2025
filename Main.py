@@ -3,6 +3,7 @@ from tkinter import ttk
 import display_alerts
 import display_monitoring
 import display_scan
+import display_vulnerable
 
 def boton_presionado():
     print("¡Botón presionado!")
@@ -17,17 +18,6 @@ def display_services():
     go_back.grid(column=0, row=1) 
 
     window_services.mainloop()
-
-def display_vulnerable():
-    window_vulnerable = Tk()
-
-    frm = ttk.Frame(window_vulnerable,padding=10)
-    frm.grid()
-
-    go_back = ttk.Button(frm, text="Regresar", command=lambda:[window_vulnerable.destroy(),main()])
-    go_back.grid(column=0, row=1) 
-
-    window_vulnerable.mainloop()
 
 def display_prevention():
     window_prevention = Tk()
@@ -78,7 +68,7 @@ def main():
     button2 = ttk.Button(frm, text="2. Detecion de Servicios en la Red", command=lambda:[root.destroy(),display_services()])
     button2.grid(column=0, row=2)  
 
-    button3 = ttk.Button(frm, text="3. Identificacion de Vulnerabilidades ", command=lambda:[root.destroy(),display_vulnerable()])
+    button3 = ttk.Button(frm, text="3. Identificacion de Vulnerabilidades ", command=lambda:display_vulnerable.run(root))
     button3.grid(column=0, row=3)  
     
     button4 = ttk.Button(frm, text="4. Mecanismos de Prevencion de Ataque", command=lambda:[root.destroy(),display_prevention()])
