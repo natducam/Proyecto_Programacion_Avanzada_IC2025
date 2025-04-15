@@ -1,9 +1,11 @@
 from tkinter import Tk
 from tkinter import ttk
 import display_alerts
+import display_prevention
 import display_monitoring
 import display_scan
 import display_vulnerable
+import display_services
 
 def boton_presionado():
     print("¡Botón presionado!")
