@@ -6,7 +6,6 @@ import display_monitoring
 import display_scan
 import display_vulnerable
 import display_services
-import display_incidents
 
 def boton_presionado():
     print("¡Botón presionado!")
@@ -55,6 +54,9 @@ def main():
 
     button8 = ttk.Button(frm, text="8. Informes", command=lambda:[root.destroy(),display_report()])
     button8.grid(column=0, row=8) 
+    
+    button9 = ttk.Button(frm, text="9. Salir", command=root.destroy)
+    button9.grid(column=0, row=9)
 
     root.mainloop()
 
