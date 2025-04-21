@@ -7,11 +7,38 @@ import re
 from collections import defaultdict
 import nmap
 import queue
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
+# Regex patterns for detecting SQLi and XSS
 sql_injection_pattern = re.compile(r"(?i)(union select|or 1=1|--|drop table|insert into|xp_cmdshell)")
 xss_pattern = re.compile(r"(?i)(<script>|onerror=|<img src=|<svg|alert\(|document\.cookie)")
+
+# For tracking login failures
 login_failures = defaultdict(int)
 
+# Email sending function
+def send_email(recipient_email, subject, content):
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
+
+    source_email = 'test02152326@gmail.com'
+    password = 'iqtw akxa avxt wwva'
+
+    message = MIMEMultipart()
+    message['From'] = source_email
+    message['To'] = recipient_email
+    message['Subject'] = subject
+
+    message.attach(MIMEText(content, 'plain'))
+
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(source_email, password)
+        server.sendmail(message['From'], message['To'], message.as_string())
+
+# Main App
 class ThreatDetectorApp:
     def __init__(self, root):
         self.root = root
@@ -34,7 +61,9 @@ class ThreatDetectorApp:
         self.stop_button = ttk.Button(self.button_frame, text="Detener Detección", command=self.stop_detection, state=tk.DISABLED)
         self.stop_button.pack(side=tk.LEFT, padx=5)
 
-        # Live stats labels
+        self.email_log_button = ttk.Button(root, text="Enviar Log por Email", command=self.email_log)
+        self.email_log_button.pack(pady=10)
+
         self.stats_frame = ttk.Frame(root)
         self.stats_frame.pack(pady=10)
 
@@ -65,17 +94,48 @@ class ThreatDetectorApp:
         self.http_packet_count = 0
         self.sqli_count = 0
         self.xss_count = 0
-        self.packet_queue = queue.Queue()  # Queue to pass data to the main thread
+        self.packet_queue = queue.Queue()
+
         self.log("Inicializado. Listo para iniciar la detección.")
+
+    def email_log(self):
+        popup = tk.Toplevel(self.root)
+        popup.title("Enviar Log por Email")
+        popup.geometry("300x150")
+
+        tk.Label(popup, text="Correo del destinatario:").pack(pady=(10, 0))
+        email_entry = tk.Entry(popup, width=40)
+        email_entry.pack(pady=5)
+
+        def send_from_popup():
+            recipient = email_entry.get().strip()
+            subject = "Log de Detección de Amenazas"
+            if not recipient:
+                self.log("[!] No se ingresó ningún correo.")
+                popup.destroy()
+                return
+            try:
+                with open("monitoring_log.txt", "r") as file:
+                    content = file.read()
+
+                send_email(recipient, subject, content)
+                self.log(f"Log enviado por correo a {recipient}.")
+            except Exception as e:
+                self.log(f"[!] Error al enviar el log por email: {e}")
+            popup.destroy()
+
+        send_button = ttk.Button(popup, text="Enviar", command=send_from_popup)
+        send_button.pack(pady=10)
 
     def log(self, message):
         self.log_area.insert(tk.END, message + "\n")
         self.log_area.see(tk.END)
+        with open("monitoring_log.txt", "a") as file:
+            file.write(message + "\n")
 
     def start_detection(self):
         iface = self.interface_var.get()
         if iface:
-            # Reset stats before starting the detection
             self.packet_count = 0
             self.http_packet_count = 0
             self.sqli_count = 0
@@ -84,23 +144,19 @@ class ThreatDetectorApp:
             self.http_count_label.config(text="Paquetes HTTP: 0")
             self.sqli_count_label.config(text="SQLi Detectado: 0")
             self.xss_count_label.config(text="XSS Detectado: 0")
-            
+
             self.sniffing = True
             self.start_button.config(state=tk.DISABLED)
             self.stop_button.config(state=tk.NORMAL)
             self.log(f"Iniciando captura de paquetes en {iface}...")
-            
-            # Start sniffing in a new thread
+
             self.sniff_thread = threading.Thread(target=self.process_traffic, args=(iface,), daemon=True)
             self.sniff_thread.start()
-            
-            # Start updating stats in the main thread
             self.update_stats_thread()
         else:
             self.log("Por favor, selecciona una interfaz de red.")
 
     def stop_detection(self):
-        # Stop sniffing and reset buttons
         self.sniffing = False
         self.start_button.config(state=tk.NORMAL)
         self.stop_button.config(state=tk.DISABLED)
@@ -126,29 +182,41 @@ class ThreatDetectorApp:
         if not self.sniffing:
             return False
         self.packet_count += 1
-        if pkt.haslayer(HTTPRequest):
-            self.http_packet_count += 1
-            ip = pkt["IP"].src
-            try:
+        try:
+            if pkt.haslayer('IP'):
+                src_ip = pkt['IP'].src
+                dst_ip = pkt['IP'].dst
+                proto = pkt['IP'].proto
+                info = f"Paquete capturado - Origen: {src_ip}, Destino: {dst_ip}, Protocolo: {proto}"
+                self.log(info)
+
+            if pkt.haslayer(HTTPRequest):
+                self.http_packet_count += 1
+                http_layer = pkt.getlayer(HTTPRequest)
+                host = http_layer.Host.decode() if http_layer.Host else ''
+                path = http_layer.Path.decode() if http_layer.Path else ''
+                method = http_layer.Method.decode() if http_layer.Method else ''
+                full_url = f"http://{host}{path}"
+                self.log(f"Solicitud HTTP: {method} {full_url}")
+
                 raw = pkt.sprintf("%Raw.load%")
                 if raw:
                     threats = self.analyze_request(raw)
                     for threat in threats:
-                        self.log(f"[!] {threat} desde {ip} — Payload: {raw}")
+                        self.log(f"[!] {threat} detectado desde {src_ip} en {full_url} — Payload: {raw}")
                     if "login failed" in raw.lower():
-                        self.log_failed_login(ip)
+                        self.log_failed_login(src_ip)
                     if "union select" in raw.lower():
                         self.sqli_count += 1
                     if "<script>" in raw.lower():
                         self.xss_count += 1
-            except Exception as e:
-                self.log(f"[!] Error al procesar el paquete: {e}")
 
-        # Put updated stats in the queue
-        self.packet_queue.put((self.packet_count, self.http_packet_count, self.sqli_count, self.xss_count))
+            self.packet_queue.put((self.packet_count, self.http_packet_count, self.sqli_count, self.xss_count))
+
+        except Exception as e:
+            self.log(f"[!] Error al procesar el paquete: {e}")
 
     def update_stats_thread(self):
-        # Check for new stats in the queue
         if not self.packet_queue.empty():
             pkt_count, http_count, sqli_count, xss_count = self.packet_queue.get()
             self.pkt_count_label.config(text=f"Paquetes Capturados: {pkt_count}")
@@ -157,20 +225,18 @@ class ThreatDetectorApp:
             self.xss_count_label.config(text=f"XSS Detectado: {xss_count}")
         
         if self.sniffing:
-            # Re-run the update stats every second
             self.root.after(1000, self.update_stats_thread)
 
     def scan_ports(self):
         ip = "127.0.0.1"
         if ip:
             self.log(f"Escaneando puertos abiertos para la IP {ip}...")
-            nmap_path = [r"C:\Program Files (x86)\Nmap\nmap.exe",]
+            nmap_path = [r"C:\Program Files (x86)\Nmap\nmap.exe"]
             nm = nmap.PortScanner(nmap_search_path=nmap_path)
-            #nm = nmap.PortScanner()
             try:
-                nm.scan(ip, '1-1024')  # Scan ports 1-1024
+                nm.scan(ip, '1-1024')
                 open_ports = [port for port in nm[ip]['tcp'] if nm[ip]['tcp'][port]['state'] == 'open']
-                self.port_output.delete(1.0, tk.END)  # Clear previous results
+                self.port_output.delete(1.0, tk.END)
                 if open_ports:
                     self.port_output.insert(tk.END, f"Puertos abiertos para {ip}:\n")
                     for port in open_ports:
@@ -182,6 +248,7 @@ class ThreatDetectorApp:
         else:
             self.port_output.insert(tk.END, "Dirección IP no válida.")
 
+# To run the app
 def run(parent_root=None):
     if parent_root is None:
         root = tk.Tk()
