@@ -22,7 +22,7 @@ class ThreatDetectorApp:
         if interfaces:
             self.interface_var.set(interfaces[0])
         ttk.Label(root, text="Selecciona la Interfaz de Red:").pack(pady=(10, 0))
-        self.interface_menu = ttk.Combobox(root, textvariable=self.interface_var, values=interfaces)
+        self.interface_menu = ttk.Combobox(root, textvariable=self.interface_var, values=interfaces, width=60)
         self.interface_menu.pack()
 
         self.button_frame = ttk.Frame(root)
@@ -128,26 +128,40 @@ class ThreatDetectorApp:
         if not self.sniffing:
             return False
         self.packet_count += 1
-        if pkt.haslayer(HTTPRequest):
-            self.http_packet_count += 1
-            ip = pkt["IP"].src
-            try:
+        try:
+            src_ip = pkt[0][1].src
+            dst_ip = pkt[0][1].dst
+            proto = pkt[0][1].proto
+            info = f"Paquete capturado - Origen: {src_ip}, Destino: {dst_ip}, Protocolo: {proto}"
+            self.log(info)
+
+            if pkt.haslayer(HTTPRequest):
+                self.http_packet_count += 1
+                http_layer = pkt.getlayer(HTTPRequest)
+                host = http_layer.Host.decode() if http_layer.Host else ''
+                path = http_layer.Path.decode() if http_layer.Path else ''
+                method = http_layer.Method.decode() if http_layer.Method else ''
+                full_url = f"http://{host}{path}"
+                self.log(f"Solicitud HTTP: {method} {full_url}")
+
                 raw = pkt.sprintf("%Raw.load%")
                 if raw:
                     threats = self.analyze_request(raw)
                     for threat in threats:
-                        self.log(f"[!] {threat} desde {ip} — Payload: {raw}")
+                        self.log(f"[!] {threat} detectado desde {src_ip} en {full_url} — Payload: {raw}")
                     if "login failed" in raw.lower():
-                        self.log_failed_login(ip)
+                        self.log_failed_login(src_ip)
                     if "union select" in raw.lower():
                         self.sqli_count += 1
                     if "<script>" in raw.lower():
                         self.xss_count += 1
-            except Exception as e:
-                self.log(f"[!] Error al procesar el paquete: {e}")
 
-        # Put updated stats in the queue
-        self.packet_queue.put((self.packet_count, self.http_packet_count, self.sqli_count, self.xss_count))
+            # Update stats
+            self.packet_queue.put((self.packet_count, self.http_packet_count, self.sqli_count, self.xss_count))
+
+        except Exception as e:
+            self.log(f"[!] Error al procesar el paquete: {e}")
+
 
     def update_stats_thread(self):
         # Check for new stats in the queue
@@ -168,21 +182,39 @@ class ThreatDetectorApp:
             self.log(f"Escaneando puertos abiertos para la IP {ip}...")
             nmap_path = [r"C:\Program Files (x86)\Nmap\nmap.exe",]
             nm = nmap.PortScanner(nmap_search_path=nmap_path)
-            #nm = nmap.PortScanner()
             try:
                 nm.scan(ip, '1-1024')  # Scan ports 1-1024
                 open_ports = [port for port in nm[ip]['tcp'] if nm[ip]['tcp'][port]['state'] == 'open']
                 self.port_output.delete(1.0, tk.END)  # Clear previous results
-                if open_ports:
-                    self.port_output.insert(tk.END, f"Puertos abiertos para {ip}:\n")
-                    for port in open_ports:
-                        self.port_output.insert(tk.END, f"Puerto {port} está abierto\n")
-                else:
-                    self.port_output.insert(tk.END, "No se detectaron puertos abiertos.")
+
+                # Abrir archivo para guardar resultados
+                with open("log_escaneo_puertos.txt", "a") as scan_log:
+                    scan_log.write(f"Escaneo de puertos para {ip}:\n")
+
+                    if open_ports:
+                        self.port_output.insert(tk.END, f"Puertos abiertos para {ip}:\n")
+                        scan_log.write(f"Puertos abiertos para {ip}:\n")
+                        for port in open_ports:
+                            resultado = f"Puerto {port} está abierto\n"
+                            self.port_output.insert(tk.END, resultado)
+                            scan_log.write(resultado)
+                    else:
+                        mensaje = "No se detectaron puertos abiertos.\n"
+                        self.port_output.insert(tk.END, mensaje)
+                        scan_log.write(mensaje)
+
+                    scan_log.write("\n")  # Separador entre escaneos
+
             except Exception as e:
-                self.port_output.insert(tk.END, f"Error: {e}")
+                error_msg = f"Error: {e}\n"
+                self.port_output.insert(tk.END, error_msg)
+                with open("log_escaneo_puertos.txt", "a") as scan_log:
+                    scan_log.write(error_msg)
         else:
-            self.port_output.insert(tk.END, "Dirección IP no válida.")
+            mensaje = "Dirección IP no válida.\n"
+            self.port_output.insert(tk.END, mensaje)
+            with open("log_escaneo_puertos.txt", "a") as scan_log:
+                scan_log.write(mensaje)
 
 def run(parent_root=None):
     if parent_root is None:

@@ -6,20 +6,10 @@ import display_monitoring
 import display_scan
 import display_vulnerable
 import display_services
+import display_report
 
 def boton_presionado():
     print("¡Botón presionado!")
-
-def display_report():
-    window_report = Tk()
-
-    frm = ttk.Frame(window_report,padding=10)
-    frm.grid()
-
-    go_back = ttk.Button(frm, text="Regresar", command=lambda:[window_report.destroy(),main()])
-    go_back.grid(column=0, row=1) 
-
-    window_report.mainloop()
 
 def main():
     
@@ -31,7 +21,7 @@ def main():
     
     ttk.Label(frm, text="Opciones").grid(column=0, row=0) 
     
-    button1 = ttk.Button(frm, text="1. Escaneo de Puertos y Servicios", command=lambda: display_scan.run(root))
+    button1 = ttk.Button(frm, text="1. Escaneo de Puertos y Servicios", command=lambda:display_scan.run(root))
     button1.grid(column=0, row=1) 
 
     button2 = ttk.Button(frm, text="2. Detecion de Servicios en la Red", command=lambda:display_services.run(root))
@@ -52,7 +42,7 @@ def main():
     button7 = ttk.Button(frm, text="7. Registro de Incidentes", command=lambda:display_incidents.run(root))
     button7.grid(column=0, row=7) 
 
-    button8 = ttk.Button(frm, text="8. Informes", command=lambda:[root.destroy(),display_report()])
+    button8 = ttk.Button(frm, text="8. Informes", command=lambda:display_report.run())
     button8.grid(column=0, row=8) 
     
     button9 = ttk.Button(frm, text="9. Salir", command=root.destroy)
