@@ -71,6 +71,8 @@ class ThreatDetectorApp:
     def log(self, message):
         self.log_area.insert(tk.END, message + "\n")
         self.log_area.see(tk.END)
+        with open("log_monitoreo.txt", "a") as file:
+            file.write("> "+ message + "\n")
 
     def start_detection(self):
         iface = self.interface_var.get()
