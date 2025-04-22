@@ -759,3 +759,64 @@
 > Paquete capturado - Origen: 192.168.100.12, Destino: 172.191.76.63, Protocolo: 6
 > Paquete capturado - Origen: 172.191.76.63, Destino: 192.168.100.12, Protocolo: 6
 > Captura de paquetes detenida.
+> Inicializado. Listo para iniciar la detección.
+> Iniciando captura de paquetes en \Device\NPF_{C768BD28-70C7-4517-90D0-AE0C57CCAE5A}...
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Paquete capturado - Origen: 162.159.130.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.130.234, Protocolo: 6
+> Captura de paquetes detenida.
+> Inicializado. Listo para iniciar la detección.
+> Iniciando captura de paquetes en \Device\NPF_{C768BD28-70C7-4517-90D0-AE0C57CCAE5A}...
+> Paquete capturado - Origen: 162.159.136.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.136.234, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 52.112.84.179, Protocolo: 6
+> Paquete capturado - Origen: 52.112.84.179, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 52.112.84.179, Protocolo: 6
+> Paquete capturado - Origen: 52.112.87.186, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 52.112.87.186, Protocolo: 6
+> Paquete capturado - Origen: 52.112.87.186, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 52.112.87.186, Protocolo: 6
+> Paquete capturado - Origen: 52.112.87.186, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.178.50.74, Destino: 192.168.100.12, Protocolo: 17
+> Paquete capturado - Origen: 192.168.100.12, Destino: 192.178.50.74, Protocolo: 17
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 162.159.136.234, Destino: 192.168.100.12, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 162.159.136.234, Protocolo: 6
+> Paquete capturado - Origen: 192.168.100.12, Destino: 157.240.14.52, Protocolo: 6
+> Paquete capturado - Origen: 157.240.14.52, Destino: 192.168.100.12, Protocolo: 6
+> Captura de paquetes detenida.
+> Escaneando puertos abiertos para la IP 127.0.0.1...
