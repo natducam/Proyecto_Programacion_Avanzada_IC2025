@@ -12,3 +12,17 @@ Puerto 445 está abierto
 Puerto 902 está abierto
 Puerto 912 está abierto
 
+Escaneo de puertos para 127.0.0.1:
+Puertos abiertos para 127.0.0.1:
+Puerto 135 está abierto
+Puerto 445 está abierto
+Puerto 902 está abierto
+Puerto 912 está abierto
+
+Escaneo de puertos para 127.0.0.1:
+Puertos abiertos para 127.0.0.1:
+Puerto 135 está abierto
+Puerto 445 está abierto
+Puerto 902 está abierto
+Puerto 912 está abierto
+

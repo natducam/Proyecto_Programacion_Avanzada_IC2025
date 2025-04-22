@@ -60,8 +60,8 @@ def bloquear_ip_manual(entry, text_area):
 
 # === Interfaz gráfica ===
 
-def crear_ventana():
-    root = tk.Tk()
+def crear_ventana(parent_root):
+    root = tk.Toplevel(parent_root)
     root.title("Prevención de Ataques")
 
     frm = ttk.Frame(root, padding=10)
@@ -102,4 +102,13 @@ def ejecutar_bloqueo_automatico(text_area):
     for linea in resultados:
         text_area.insert("end", f"{linea}\n")
 
-crear_ventana()
+def run(parent_root=None):
+    if parent_root == None:
+        root = tk.Tk()
+        root.withdraw()
+        crear_ventana(root)
+    else:
+        crear_ventana(parent_root)
+
+if __name__ == "__main__":
+    run()

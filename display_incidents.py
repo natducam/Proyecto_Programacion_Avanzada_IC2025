@@ -39,7 +39,7 @@ def leer_incidentes():
         next(reader, None)  # Saltar encabezado
         return [f"{row[0]} - IP: {row[1]} - Tipo: {row[2]} - Acción: {row[3]}" for row in reader]
 
-def display_incidentes(parent_root=None):
+def run(parent_root=None):
     window = Toplevel(parent_root) if parent_root else Tk()
     window.title("Registro de Incidentes")
 
@@ -92,4 +92,4 @@ def display_incidentes(parent_root=None):
 
 # Para pruebas independientes
 if __name__ == "__main__":
-    display_incidentes()
+    run()

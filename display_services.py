@@ -38,7 +38,7 @@ def analizar_logs(ruta_log):
         resultados.append("No se detectaron eventos sospechosos.")
     return resultados
 
-def display_services(parent_root=None):
+def run(parent_root=None):
     window = Toplevel(parent_root) if parent_root else Tk()
     window.title("Detección de Servicios en la Red")
 
@@ -76,5 +76,5 @@ def display_services(parent_root=None):
 
 # Para pruebas independientes
 if __name__ == "__main__":
-    display_services()
+    run()
 

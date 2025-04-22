@@ -7,6 +7,7 @@ import display_scan
 import display_vulnerable
 import display_services
 import display_report
+import display_incidents
 
 def boton_presionado():
     print("¡Botón presionado!")

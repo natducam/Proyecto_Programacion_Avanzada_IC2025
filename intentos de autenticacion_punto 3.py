@@ -8,7 +8,7 @@ USUARIO_CORRECTO = "admin"
 CONTRASENA_CORRECTA = "12345"
 
 # Ruta del archivo de log en tu sistema
-LOG_FILE_PATH = r"C:\Users\Usuario\GitHub\Proyecto_Programacion_Avanzada_IC2025\log_autenticacion.txt"
+LOG_FILE_PATH = r"log_autenticacion.txt"
 
 # Función para registrar fallos en el log
 def registrar_fallo(usuario_intentado):
