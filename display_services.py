@@ -1,53 +1,80 @@
-from tkinter import Toplevel, ttk, scrolledtext
 import os
 import re
+from tkinter import *
+from tkinter import ttk, filedialog, scrolledtext
+from collections import defaultdict
 
-def buscar_eventos_sospechosos(log_path):
-    eventos = []
-    patrones_sospechosos = [
-         r"contraseña fallida",
-    r"fallo de autenticación",
-    r"usuario inválido",
-    r"sesión iniciada para el usuario root",
-    r"conexión cerrada por .* puerto",
-    ]
+# Patrones de análisis
+patron_fallo_login = re.compile(r"Failed password for .* from (\d+\.\d+\.\d+\.\d+)")
+patron_root_login = re.compile(r"session opened for user root", re.IGNORECASE)
+patron_keylogger = re.compile(r"(keylogger|logkeys|xinput|keyboard|recording keystrokes|hook)", re.IGNORECASE)
 
-    if os.path.exists(log_path):
-        with open(log_path, "r", encoding="utf-8", errors="ignore") as log_file:
-            for linea in log_file:
-                for patron in patrones_sospechosos:
-                    if re.search(patron, linea, re.IGNORECASE):
-                        eventos.append(linea.strip())
-                        break
-    else:
-        eventos.append(f"No se encontró el archivo: {log_path}")
-    
-    return eventos
+def analizar_logs(ruta_log):
+    resultados = []
+    intentos_por_ip = defaultdict(int)
 
-def run(root):
-    root.destroy()
-    ventana = Toplevel()
-    ventana.title("Detección de Servicios en la Red")
-    frm = ttk.Frame(ventana, padding=10)
+    if not os.path.isfile(ruta_log):
+        return [f"[✖] El archivo {ruta_log} no existe."]
+
+    try:
+        with open(ruta_log, 'r', encoding='utf-8', errors='ignore') as file:
+            for linea in file:
+                if match := patron_fallo_login.search(linea):
+                    ip = match.group(1)
+                    intentos_por_ip[ip] += 1
+                    if intentos_por_ip[ip] >= 5:
+                        resultados.append(f"[!] Múltiples intentos fallidos desde {ip}")
+
+                if patron_root_login.search(linea):
+                    resultados.append("[!] Se detectó inicio de sesión como root")
+
+                if patron_keylogger.search(linea):
+                    resultados.append(f"[‼] Posible actividad de keylogger detectada: {linea.strip()}")
+
+    except Exception as e:
+        resultados.append(f"[✖] Error leyendo el archivo: {e}")
+
+    if not resultados:
+        resultados.append("No se detectaron eventos sospechosos.")
+    return resultados
+
+def display_services(parent_root=None):
+    window = Toplevel(parent_root) if parent_root else Tk()
+    window.title("Detección de Servicios en la Red")
+
+    frm = ttk.Frame(window, padding=10)
     frm.grid()
 
-    ttk.Label(frm, text="Análisis de registros del sistema (ej: /var/log/auth.log)").grid(column=0, row=0)
+    ttk.Label(frm, text="Análisis de Logs del Sistema", font=("Arial", 14, "bold")).grid(column=0, row=0, columnspan=2, pady=5)
 
-    text_area = scrolledtext.ScrolledText(frm, width=100, height=30)
-    text_area.grid(column=0, row=1)
+    output = scrolledtext.ScrolledText(frm, width=90, height=25)
+    output.grid(column=0, row=1, columnspan=2, pady=10)
 
-    log_path = "/var/log/auth.log"  # Ruta por defecto en Linux
+    ruta_log = StringVar(value="/var/log/auth.log")  # Por defecto
 
-    eventos = buscar_eventos_sospechosos(log_path)
+    def seleccionar_archivo():
+        archivo = filedialog.askopenfilename(title="Seleccionar archivo de log")
+        if archivo:
+            ruta_log.set(archivo)
 
-    if eventos:
-        text_area.insert("1.0", "\n".join(eventos))
-    else:
-        text_area.insert("1.0", "No se encontraron eventos sospechosos.")
+    def analizar():
+        output.delete("1.0", END)
+        ruta = ruta_log.get()
+        resultados = analizar_logs(ruta)
+        for r in resultados:
+            output.insert(END, r + "\n")
 
-    btn_back = ttk.Button(frm, text="Regresar", command=lambda:[ventana.destroy(), main_menu()])
-    btn_back.grid(column=0, row=2)
+    # Entradas y botones
+    ttk.Entry(frm, textvariable=ruta_log, width=70).grid(column=0, row=2, padx=5, sticky="w")
+    ttk.Button(frm, text="📁 Buscar Log", command=seleccionar_archivo).grid(column=1, row=2, sticky="e")
 
-def main_menu():
-    from main import main
-    main()
+    ttk.Button(frm, text="🔍 Analizar", command=analizar).grid(column=0, row=3, columnspan=2, pady=5)
+
+    ttk.Button(frm, text="Regresar", command=lambda: [window.destroy(), parent_root.deiconify() if parent_root else None]).grid(column=0, row=4, columnspan=2, pady=10)
+
+    window.mainloop()
+
+# Para pruebas independientes
+if __name__ == "__main__":
+    display_services()
+
