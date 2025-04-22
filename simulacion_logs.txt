@@ -1,0 +1,8 @@
+User started process: logkeys
+Possible keylogger tool found: xinput
+Some suspicious behavior: keyboard hook active
+
+
+[‼] Posible actividad de keylogger detectada: User started process: logkeys
+[‼] Posible actividad de keylogger detectada: Possible keylogger tool found: xinput
+[‼] Posible actividad de keylogger detectada: Some suspicious behavior: keyboard hook active
