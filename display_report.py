@@ -51,30 +51,6 @@ class ReportApp:
             self.info["LOG ESCANEO DE PUERTOS"] = [f"[!] ERROR: {e}"]
 
         try:
-            # Intenta abrir el archivo de autenticación
-            with open("log_autenticacion.txt", "r") as file:
-                lines = [line.rstrip('\n') for line in file]
-                self.info["LOG AUTENTICACION"] = lines
-        except Exception as e:
-            self.info["LOG AUTENTICACION"] = [f"[!] ERROR: {e}"]
-
-        try:
-            # Intenta abrir el archivo de logs de Windows
-            with open("logs_windows.txt", "r") as file:
-                lines = [line.rstrip('\n') for line in file]
-                self.info["LOGS WINDOWS"] = lines
-        except Exception as e:
-            self.info["LOGS WINDOWS"] = [f"[!] ERROR: {e}"]
-
-        try:
-            # Intenta abrir el archivo de simulación de logs
-            with open("simulacion_logs.txt", "r") as file:
-                lines = [line.rstrip('\n') for line in file]
-                self.info["LOG SIMULACION"] = lines
-        except Exception as e:
-            self.info["LOG SIMULACION"] = [f"[!] ERROR: {e}"]
-
-        try:
             # Intenta abrir el archivo de incidentes
             with open("incidentes.csv", "r") as file:
                 lines = [line.rstrip('\n') for line in file]
@@ -82,13 +58,6 @@ class ReportApp:
         except Exception as e:
             self.info["LOG INCIDENTES"] = [f"[!] ERROR: {e}"]
 
-        try:
-            # Intenta abrir el archivo de IPs bloqueadas
-            with open("ips_bloqueadas.txt", "r") as file:
-                lines = [line.rstrip('\n') for line in file]
-                self.info["IPS BLOQUEADAS"] = lines
-        except Exception as e:
-            self.info["IPS BLOQUEADAS"] = [f"[!] ERROR: {e}"]
 
     # Función para generar el archivo CSV con la información recolectada
     def generate_csv(self):

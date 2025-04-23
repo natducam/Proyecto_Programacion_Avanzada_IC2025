@@ -12,12 +12,17 @@ syn_attempts = {}
 # Función que simula el monitoreo de tráfico de red
 def monitor_network(log_text):
     def packet_callback(packet):
+        if not monitoring:
+            return
         if packet.haslayer(IP) and packet.haslayer(TCP):
             ip_src = packet[IP].src
             ip_dst = packet[IP].dst
             sport = packet[TCP].sport
             dport = packet[TCP].dport
             flags = packet[TCP].flags
+
+            log_text.insert(tk.END, f"IP origen: {ip_src} IP destino: {ip_dst} Puerto origen: {sport} Puerto destino: {dport} Banderas: {flags}.\n")
+            log_text.yview(tk.END)
 
             # Detectar escaneo SYN (muchos intentos a diferentes puertos sin completar la conexión)
             if flags == "S":  # Paquete SYN
@@ -83,6 +88,8 @@ def open_window(root):
     # Función para detener el monitoreo
     def stop_button_pressed():
         stop_monitoring()
+        log_text.insert(tk.END, "Monitoreo detenido.\n")
+        log_text.yview(tk.END)
         start_button.config(state=tk.NORMAL)
         stop_button.config(state=tk.DISABLED)
 

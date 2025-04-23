@@ -215,7 +215,7 @@ class ThreatDetectorApp:
             self.xss_count_label.config(text=f"XSS Detectado: {xss_count}")
 
         if self.sniffing: # se ejecuta 10 veces por segundo (cada 0.100 milisegundos)
-            self.root.after(100, self.update_stats_thread)
+            self.root.after(1000, self.update_stats_thread)
 
     # Función para escanear los puertos abiertos de una IP
     def scan_ports(self):
