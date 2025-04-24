@@ -14,7 +14,7 @@ def analizar_logs(ruta_log):
     intentos_por_ip = defaultdict(int)
 
     if not os.path.isfile(ruta_log):
-        return [f"[✖] El archivo {ruta_log} no existe."]
+        return [f"[!] El archivo {ruta_log} no existe."]
 
     try:
         with open(ruta_log, 'r', encoding='utf-8', errors='ignore') as file:
@@ -29,10 +29,10 @@ def analizar_logs(ruta_log):
                     resultados.append("[!] Se detectó inicio de sesión como root")
 
                 if patron_keylogger.search(linea):
-                    resultados.append(f"[‼] Posible actividad de keylogger detectada: {linea.strip()}")
+                    resultados.append(f"[!] Posible actividad de keylogger detectada: {linea.strip()}")
 
     except Exception as e:
-        resultados.append(f"[✖] Error leyendo el archivo: {e}")
+        resultados.append(f"[!] Error leyendo el archivo: {e}")
 
     if not resultados:
         resultados.append("No se detectaron eventos sospechosos.")

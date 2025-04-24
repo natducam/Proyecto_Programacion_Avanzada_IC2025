@@ -1,4 +1,4 @@
-# Cosntruir la interfaz grafica
+# Construir la interfaz grafica
 import tkinter as tk
 from tkinter import ttk
 # Manejo de sistema de correo
@@ -9,8 +9,6 @@ from email.mime.multipart import MIMEMultipart
 from email import encoders
 # Verificar patrones (si un email tiene la estructura de un email)
 import re
-# Obtener fecha y hora para el asunto del email
-from datetime import datetime
 # Manejo de directorio de reportes
 import os
 
