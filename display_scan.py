@@ -30,19 +30,18 @@ def monitor_network(log_text):
                     syn_attempts[ip_src] = set()
                 syn_attempts[ip_src].add(dport)
                 
-                # Si detectamos demasiados puertos diferentes en un corto período, es un escaneo SYN
-                if len(syn_attempts[ip_src]) > 5:  # Puedes ajustar el límite de puertos escaneados
+                # Si se detecta demasiados puertos diferentes en un corto período, es un escaneo SYN
+                if len(syn_attempts[ip_src]) > 5:
                     log_text.insert(tk.END, f"Mensaje SYN sospechoso detectado desde {ip_src} hacia {ip_dst} en puerto {dport}.\n")
                     log_text.yview(tk.END)
 
-            # Detectar intentos de acceso no autorizado (puerto 22 para SSH)
-            if dport == 22:  # Intentos a puerto SSH
+            # Detectar intentos de acceso no autorizado 
+            if dport == 22:  # Puerto 22 para SSH
                 log_text.insert(tk.END, f"Intento de acceso a SSH detectado desde {ip_src} hacia {ip_dst} en puerto 22.\n")
                 log_text.yview(tk.END)
 
-            # Detectar comunicaciones maliciosas a puertos no comunes
-            # Por ejemplo, alertar sobre tráfico a puertos fuera del rango usual
-            if dport > 1024 and dport < 49152:  # Puertos registrados
+            # Detectar comunicaciones maliciosas a puertos no comunes fuera del rango establecido
+            if dport > 1024 and dport < 49152:  
                 log_text.insert(tk.END, f"Tráfico sospechoso detectado desde {ip_src} hacia {ip_dst} en puerto {dport}.\n")
                 log_text.yview(tk.END)
 
@@ -67,7 +66,7 @@ def open_window(root):
     global monitoring
     monitoring = False  # Inicia con monitoreo detenido
 
-    # Crear ventana para monitoreo
+    # Ventana para monitoreo
     monitoring_window = tk.Toplevel(root)
     monitoring_window.title("Monitoreo de Tráfico de Red")
     
@@ -75,7 +74,7 @@ def open_window(root):
     frame = ttk.Frame(monitoring_window, padding=10)
     frame.grid()
 
-    # Crear widget Text para mostrar el log
+    # Crear widget para mostrar el log
     log_text = tk.Text(frame, height=20, width=80)
     log_text.grid(row=0, column=0, padx=10, pady=10)
 

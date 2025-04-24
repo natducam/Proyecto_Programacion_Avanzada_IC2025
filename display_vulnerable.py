@@ -20,7 +20,7 @@ def check_vulnerabilities():
         vulnerabilities.append("++++++++ Configuraciones inseguras ++++++++\n" + "\n".join(insecure_configs))
 
     # Comprobación de fallos autenticación
-    weak_auth = check_weak_authentication()
+    weak_auth = check_fail_authentication()
     if weak_auth:
         vulnerabilities.append("++++++++ Fallos en autenticación ++++++++\n" + "\n".join(weak_auth))
 
@@ -29,7 +29,7 @@ def check_vulnerabilities():
 def check_outdated_software():
     outdated = []
 
-    # Verificación de Firefox 
+    # Verificación de Firefox (al ser una versión vieja esta en otro path)
     firefox_path = r"C:\Program Files\Mozilla Firefox\firefox.exe"
     if os.path.exists(firefox_path):
         try:
@@ -86,7 +86,7 @@ def check_open_ports():
                 continue
     return open_ports
 
-def check_weak_authentication():
+def check_fail_authentication():
     fallos = []
     path_log = "log_autenticacion.txt"
 
@@ -98,11 +98,11 @@ def check_weak_authentication():
                     for linea in lineas:
                         fallos.append(linea.strip())
                 else:
-                    fallos.append("El archivo de log está vacío.")
+                    fallos.append("No hay fallos de autenticación.")
         except Exception as e:
             fallos.append(f"No se pudo leer el archivo de log: {e}")
     else:
-        fallos.append("Archivo de log de autenticación no encontrado.")
+        fallos.append("No se encontraron fallos de autenticación porque no se encontró el log.")
 
     return fallos
 
@@ -121,10 +121,10 @@ def open_window(parent_root):
     check_button = ttk.Button(window, text="Verificar Vulnerabilidades", command=show_vulnerabilities)
     check_button.pack(pady=20)
 
-    back_button = ttk.Button(window, text="Regresar al menú", command=lambda: close_window_and_back(parent_root, window))
+    back_button = ttk.Button(window, text="Regresar al menú", command=lambda: back_to_menu(parent_root, window))
     back_button.pack(pady=10)
 
-def close_window_and_back(parent_root, window):
+def back_to_menu(parent_root, window):
     window.destroy()
     parent_root.deiconify()
 
