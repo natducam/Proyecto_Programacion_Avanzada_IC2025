@@ -1,0 +1,3 @@
+Escaneando puertos abiertos para 127.0.0.1...
+Puerto 135 abierto — Servicio: msrpc
+Puerto 445 abierto — Servicio: microsoft-ds
